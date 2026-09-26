@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
-from.models import Publicacion, Like, Comentario, Amistad, Compartido
+from .models import Publicacion, Like, Comentario, Amistad, Compartido
 
 def get_amigos(user):
     amistades = Amistad.objects.filter(Q(de_usuario=user) | Q(para_usuario=user), aceptada=True)
@@ -65,9 +65,16 @@ def comentar(request, publicacion_id):
     return redirect("feed")
 
 @login_required
+def borrar_comentario(request, id):
+    comentario = get_object_or_404(Comentario, id=id)
+    if comentario.usuario == request.user:
+        comentario.delete()
+    return redirect("feed")
+
+@login_required
 def enviar_solicitud(request, user_id):
     para = get_object_or_404(User, id=user_id)
-    if para!= request.user:
+    if para != request.user:
         Amistad.objects.get_or_create(de_usuario=request.user, para_usuario=para)
     return redirect("feed")
 
@@ -87,13 +94,11 @@ def compartir_a_amigo(request, pub_id, user_id):
         return JsonResponse({'ok': True, 'msg': f'Enviado a {para.username}'})
     return redirect("feed")
 
-# registro, login, logout igual que antes
 def registro(request):
     if request.method == "POST":
         username = request.POST.get("username")
         email = request.POST.get("email")
         password = request.POST.get("password")
-        password2 = request.POST.get("password2")
         if User.objects.filter(username=username).exists():
             messages.error(request, "Ese usuario ya existe.")
             return redirect("registro")
