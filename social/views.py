@@ -96,21 +96,29 @@ def compartir_a_amigo(request, pub_id, user_id):
 
 def registro(request):
     if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
+
+        if not username or not password:
+            messages.error(request, "Debes llenar usuario y contraseña.")
+            return render(request, "registro.html")
+            
         if User.objects.filter(username=username).exists():
             messages.error(request, "Ese usuario ya existe.")
-            return redirect("registro")
-        User.objects.create_user(username=username, email=email, password=password)
-        user = authenticate(request, username=username, password=password)
+            return render(request, "registro.html")
+
+        user = User.objects.create_user(username=username, email=email, password=password)
         login(request, user)
         return redirect("feed")
+        
     return render(request, "registro.html")
 
 def iniciar_sesion(request):
     if request.method == "POST":
-        user = authenticate(request, username=request.POST.get("username"), password=request.POST.get("password"))
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
             return redirect("feed")

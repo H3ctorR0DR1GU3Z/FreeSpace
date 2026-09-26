@@ -1,88 +1,32 @@
 {% load static %}
-
 <!DOCTYPE html>
-<html lang="es">
-
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Crear cuenta - FreeSpace</title>
-
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm">
+        <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">FreeSpace</h1>
+        <h2 class="text-lg font-semibold mb-4 text-center">Crear cuenta</h2>
 
-<body>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-red-100 text-red-700 p-2 rounded mb-3 text-sm">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
 
-    <div class="auth-container">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Usuario" required class="w-full p-3 border rounded-lg">
+            <input type="email" name="email" placeholder="Correo" required class="w-full p-3 border rounded-lg">
+            <input type="password" name="password" placeholder="Contraseña" required class="w-full p-3 border rounded-lg">
+            <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700">Registrarse</button>
+        </form>
 
-        <div class="auth-box">
-
-            <h1>Crear cuenta</h1>
-
-            <p>Únete a FreeSpace.</p>
-
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="message">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-
-            <form method="POST">
-
-                {% csrf_token %}
-
-                <input
-                    type="text"
-                    name="username"
-                    placeholder="Nombre de usuario"
-                    required
-                >
-
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Correo electrónico"
-                    required
-                >
-
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Contraseña"
-                    required
-                >
-
-                <input
-                    type="password"
-                    name="password2"
-                    placeholder="Repite la contraseña"
-                    required
-                >
-
-                <button type="submit">
-                    Crear cuenta
-                </button>
-
-            </form>
-
-            <p>
-                ¿Ya tienes una cuenta?
-                <a href="{% url 'login' %}">
-                    Iniciar sesión
-                </a>
-            </p>
-
-            <a href="{% url 'home' %}">
-                Volver al inicio
-            </a>
-
-        </div>
-
+        <p class="text-center mt-4 text-sm">¿Ya tienes cuenta? <a href="{% url 'login' %}" class="text-blue-600 font-semibold">Inicia sesión</a></p>
     </div>
-
 </body>
-
 </html>
