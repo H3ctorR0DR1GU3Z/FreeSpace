@@ -99,11 +99,16 @@ def registro(request):
         username = request.POST.get("username", "").strip()
         email = request.POST.get("email", "").strip()
         password = request.POST.get("password", "")
+        password2 = request.POST.get("password2", "")
 
         if not username or not password:
-            messages.error(request, "Debes llenar usuario y contraseña.")
+            messages.error(request, "Debes llenar todos los campos.")
             return render(request, "registro.html")
-            
+
+        if password != password2:
+            messages.error(request, "Las contraseñas no coinciden.")
+            return render(request, "registro.html")
+
         if User.objects.filter(username=username).exists():
             messages.error(request, "Ese usuario ya existe.")
             return render(request, "registro.html")
@@ -111,7 +116,7 @@ def registro(request):
         user = User.objects.create_user(username=username, email=email, password=password)
         login(request, user)
         return redirect("feed")
-        
+
     return render(request, "registro.html")
 
 def iniciar_sesion(request):

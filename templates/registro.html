@@ -1,32 +1,67 @@
-{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear cuenta - FreeSpace</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            background-image:
+                radial-gradient(at 20% 30%, rgba(45, 90, 200, 0.25) 0px, transparent 50%),
+                radial-gradient(at 80% 80%, rgba(120, 40, 200, 0.15) 0px, transparent 50%);
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-sm">
-        <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">FreeSpace</h1>
-        <h2 class="text-lg font-semibold mb-4 text-center">Crear cuenta</h2>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-[#1c1c1e]/90 backdrop-blur-xl border border-white/10 p-8 rounded-[24px] shadow-2xl w-full max-w-[400px]">
+        <h1 class="text-[32px] font-extrabold text-white tracking-tight">FreeSpace</h1>
+        <p class="text-[#8e8e93] text-[15px] mt-1 mb-8">Únete a FreeSpace. Crea tu cuenta.</p>
 
         {% if messages %}
             {% for message in messages %}
-                <div class="bg-red-100 text-red-700 p-2 rounded mb-3 text-sm">{{ message }}</div>
+                <div class="bg-red-500/10 text-red-400 border border-red-500/20 p-3 rounded-xl mb-4 text-sm">{{ message }}</div>
             {% endfor %}
         {% endif %}
 
-        <form method="POST" class="space-y-4">
+        <form method="POST" class="space-y-5">
             {% csrf_token %}
-            <input type="text" name="username" placeholder="Usuario" required class="w-full p-3 border rounded-lg">
-            <input type="email" name="email" placeholder="Correo" required class="w-full p-3 border rounded-lg">
-            <input type="password" name="password" placeholder="Contraseña" required class="w-full p-3 border rounded-lg">
-            <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700">Registrarse</button>
+
+            <div>
+                <label class="text-[#aeaeb2] text-[14px] font-medium">Usuario</label>
+                <input type="text" name="username" placeholder="tu usuario" required
+                class="mt-2 w-full p-3.5 bg-[#2c2c2e] border border-transparent rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-white/20 focus:bg-[#3a3a3c] transition">
+            </div>
+
+            <div>
+                <label class="text-[#aeaeb2] text-[14px] font-medium">Correo electrónico</label>
+                <input type="email" name="email" placeholder="tu@correo.com" required
+                class="mt-2 w-full p-3.5 bg-[#2c2c2e] border border-transparent rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-white/20 focus:bg-[#3a3a3c] transition">
+            </div>
+
+            <div>
+                <label class="text-[#aeaeb2] text-[14px] font-medium">Contraseña</label>
+                <div class="relative mt-2">
+                    <input type="password" name="password" placeholder="••••••••" required
+                    class="w-full p-3.5 bg-[#2c2c2e] border border-transparent rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-white/20 focus:bg-[#3a3a3c] transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[#aeaeb2] text-[14px] font-medium">Repite la contraseña</label>
+                <input type="password" name="password2" placeholder="••••••••" required
+                class="mt-2 w-full p-3.5 bg-[#2c2c2e] border border-transparent rounded-xl text-white placeholder-[#6e6e73] focus:outline-none focus:border-white/20 focus:bg-[#3a3a3c] transition">
+            </div>
+
+            <button type="submit" class="w-full bg-white text-black p-3.5 rounded-full font-bold text-[16px] hover:bg-gray-200 transition mt-2">
+                Crear cuenta
+            </button>
         </form>
 
-        <p class="text-center mt-4 text-sm">¿Ya tienes cuenta? <a href="{% url 'login' %}" class="text-blue-600 font-semibold">Inicia sesión</a></p>
+        <p class="text-center text-[#8e8e93] text-sm mt-6">
+            ¿Ya tienes una cuenta? <a href="{% url 'login' %}" class="text-white font-bold hover:underline">Iniciar sesión</a>
+        </p>
     </div>
 </body>
 </html>
