@@ -1,0 +1,22 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<body class="bg-[#0a0a0a] text-white min-h-screen flex flex-col">
+<div class="max-w-[600px] mx-auto w-full flex flex-col h-screen bg-[#1c1c1e] border-x border-white/10">
+<div class="p-4 border-b border-white/10 flex items-center gap-3">
+<a href="/mensajes/" class="text-gray-400 hover:text-white">< Volver</a>
+<div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-sm">{{ otro_usuario.username|first|upper }}</div>
+<p class="font-bold">{{ otro_usuario.username }}</p>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#0a0a0a]">
+{% for m in mensajes %}
+<div class="{% if m.de_usuario == request.user %}bg-[#0a84ff] ml-auto rounded-br-sm{% else %}bg-[#2c2c2e] mr-auto rounded-bl-sm{% endif %} max-w-[75%] p-3 rounded-2xl text-sm">{{ m.contenido }}</div>
+{% empty %}
+<p class="text-center text-gray-500 text-sm mt-10">Inicia la conversación con {{ otro_usuario.username }} 👋</p>
+{% endfor %}
+</div>
+<form method="POST" class="p-4 bg-[#1c1c1e] border-t border-white/10 flex gap-2">
+{% csrf_token %}
+<input name="contenido" required autocomplete="off" placeholder="Escribe un mensaje..." class="flex-1 p-3 bg-[#2c2c2e] rounded-full text-sm text-white focus:outline-none">
+<button type="submit" class="bg-white text-black px-6 rounded-full font-bold text-sm">Enviar</button>
+</form>
+</div>
+</body>
