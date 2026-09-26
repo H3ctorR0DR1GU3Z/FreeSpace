@@ -1,137 +1,137 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feed - FreeSpace</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-*{font-family:'Inter',sans-serif; margin:0; box-sizing:border-box;}
-body{background:#0a0a0a; color:white;}
-nav{position:sticky; top:0; z-index:10; backdrop-filter: blur(12px); background:rgba(18,18,18,0.8); border-bottom:1px solid #222; padding:14px 30px; display:flex; justify-content:space-between; align-items:center;}
-.logo{font-weight:800; font-size:20px;}
-nav a{color:#aaa; text-decoration:none; margin-left:22px;} nav a:hover{color:white;}
-.container{max-width:1150px; margin:25px auto; display:flex; gap:25px; padding:0 20px;}
-.feed{flex:1.7;}.sidebar{flex:1; position:sticky; top:85px; height:fit-content;}
-.card{background:#171717; border:1px solid #262626; border-radius:18px; padding:18px; margin-bottom:16px;}
-textarea{background:#212121; border:1px solid #2a2a2a; width:100%; color:white; padding:14px; border-radius:12px; outline:none;}
-.user-pill{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
-.avatar{width:38px; height:38px; background:linear-gradient(135deg,#0d6efd,#6f42c1); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;}
-.btn{background:#fff; color:black; border:none; padding:9px 22px; border-radius:30px; font-weight:600; cursor:pointer;}
-.btn-blue{background:#0d6efd; color:white;}
-.file-label{color:#888; font-size:13px; cursor:pointer;}
-.post-actions{display:flex; gap:18px; margin-top:12px; color:#666; font-size:14px;}
-.post-actions a{color:#666; text-decoration:none; cursor:pointer;}.post-actions a:hover{color:white;}
-.coment-box{margin-top:12px; margin-left:48px; display:none;}
-.coment-box input{background:#212121; border:1px solid #2a2a2a; color:white; padding:8px 12px; border-radius:20px; width:75%; outline:none;}
-.liked{color:#ff3040!important;}
-.modal{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:20;}
-.modal-content{background:#171717; border:1px solid #333; border-radius:18px; padding:20px; width:90%; max-width:380px;}
-.amigo-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #222;}
-</style>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<nav><div class="logo">FreeSpace</div><div><a href="/">Inicio</a><a href="/feed/" style="color:white;">Feed</a><a href="/logout/">Salir</a></div></nav>
+<body class="bg-[#0a0a0a] text-white min-h-screen">
+<nav class="sticky top-0 z-50 bg-[#0a0a0a]/80 backdrop-blur border-b border-white/10 px-6 py-4 flex justify-between items-center">
+  <h1 class="text-xl font-bold">FreeSpace</h1>
+  <div class="flex gap-6 text-sm text-gray-400">
+    <a href="/" class="hover:text-white">Inicio</a>
+    <a href="/feed/" class="text-white font-bold">Feed</a>
+    <a href="/mensajes/" class="hover:text-white">Mensajes {% if mensajes_no_leidos > 0 %}({{ mensajes_no_leidos }}){% endif %}</a>
+    <a href="/logout/" class="hover:text-white">Salir</a>
+  </div>
+</nav>
 
-<div class="container">
-<div class="feed">
-<div class="card">
-<div class="user-pill"><div class="avatar">{{ user.username|first|upper }}</div><div><strong>{{ user.username }}</strong></div></div>
-<form method="POST" enctype="multipart/form-data">{% csrf_token %}
-<textarea name="contenido" rows="3" placeholder="¿Qué estás pensando? Puedes subir foto también..."></textarea>
-<div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-<label class="file-label">📎 <input type="file" name="imagen" hidden accept="image/*" onchange="this.parentNode.innerHTML='✅ '+this.files[0].name"> Añadir foto</label>
-<button class="btn btn-blue">Publicar</button></div></form>
-</div>
+<div class="max-w-[1200px] mx-auto p-4 grid grid-cols-1 lg:grid-cols-[1.7fr_0.8fr] gap-6">
 
-{% for pub in publicaciones %}
-<div class="card">
-<div class="user-pill"><div class="avatar">{{ pub.usuario.username|first|upper }}</div><div><strong>{{ pub.usuario.username }}</strong><div style="font-size:12px;color:#777;">{{ pub.fecha|timesince }} atrás</div></div></div>
-<p style="margin:8px 0 10px 48px;">{{ pub.contenido }}</p>
-{% if pub.imagen %}<img src="{{ pub.imagen.url }}" style="width:100%; border-radius:14px; max-height:500px; object-fit:cover;">{% endif %}
-<div class="post-actions" style="margin-left:48px;">
-<a href="#" class="like-btn" data-id="{{ pub.id }}">❤️ <span id="likes-{{ pub.id }}">{{ pub.total_likes }}</span></a>
-<a href="#" onclick="document.getElementById('com-{{ pub.id }}').style.display='block'; return false;">💬 {{ pub.total_comentarios }} Comentar</a>
-<a href="#" class="open-share" data-pub="{{ pub.id }}">↗ Compartir</a>
-</div>
-<div id="com-{{ pub.id }}" class="coment-box">
-<form method="POST" action="{% url 'comentar' pub.id %}">{% csrf_token %}<input type="text" name="contenido_comentario" placeholder="Escribe un comentario..." required><button class="btn btn-blue" style="padding:6px 14px; font-size:12px;">Enviar</button></form>
+  <!-- FEED -->
+  <div class="space-y-4">
+    <!-- CREAR POST -->
+    <div class="bg-[#1c1c1e] rounded-[24px] border border-white/10 p-4">
+      <form method="POST" enctype="multipart/form-data" onsubmit="const b=this.querySelector('#btn-publicar'); b.disabled=true; b.innerText='Publicando...';">
+        {% csrf_token %}
+        <textarea name="contenido" placeholder="¿Qué estás pensando? Puedes subir foto también..." class="w-full bg-[#2c2c2e] rounded-xl p-4 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[90px] resize-none"></textarea>
+        <div class="flex justify-between items-center mt-4">
+          <label class="text-sm text-gray-400 cursor-pointer hover:text-white">
+            📎 Añadir foto
+            <input type="file" name="imagen" accept="image/*" class="hidden">
+          </label>
+          <button id="btn-publicar" type="submit" class="bg-[#0a84ff] hover:bg-blue-600 text-white px-6 py-2 rounded-full font-bold text-sm transition">Publicar</button>
+        </div>
+      </form>
+    </div>
 
-{% for c in pub.comentarios.all %}
-<div style="margin:8px 0; font-size:13px; background:#1f1f1f; padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-<span><b>{{ c.usuario.username }}</b>: {{ c.contenido }}</span>
-{% if c.usuario == user %}
-<a href="{% url 'borrar_comentario' c.id %}" style="color:#ff4444; text-decoration:none; font-size:11px; margin-left:12px; font-weight:bold;">🗑️ Borrar</a>
-{% endif %}
-</div>
-{% endfor %}
+    <!-- POSTS -->
+    {% for pub in publicaciones %}
+    <div class="bg-[#1c1c1e] rounded-[24px] border border-white/10 p-5">
+      <div class="flex gap-3 items-center">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold">{{ pub.usuario.username|first|upper }}</div>
+        <div>
+          <p class="font-bold text-sm">{{ pub.usuario.get_full_name|default:pub.usuario.username }}</p>
+          <p class="text-xs text-gray-400">{{ pub.fecha|timesince }} atrás</p>
+        </div>
+      </div>
 
-</div>
-</div>
-{% endfor %}
-</div>
+      <p class="mt-4 text-[15px] leading-relaxed whitespace-pre-wrap">{{ pub.contenido }}</p>
 
-<div class="sidebar">
-{% if solicitudes %}
-<div class="card"><h4>Solicitudes</h4>
-{% for s in solicitudes %}<div class="amigo-item"><span>{{ s.de_usuario.username }}</span><a href="{% url 'aceptar_solicitud' s.id %}" class="btn btn-blue" style="padding:4px 12px; font-size:12px;">Aceptar</a></div>{% endfor %}
-</div>{% endif %}
+      {% if pub.imagen %}
+        <img src="{{ pub.imagen.url }}" class="mt-4 rounded-2xl w-full max-h-[500px] object-cover border border-white/10">
+      {% endif %}
 
-<div class="card"><h4>Descubre gente</h4>
-{% for u in perfiles %}<div class="amigo-item"><span>{{ u.username }}</span><a href="{% url 'enviar_solicitud' u.id %}" style="color:#0d6efd; font-size:13px; text-decoration:none;">Agregar</a></div>{% endfor %}
-</div>
+      <div class="flex gap-6 mt-4 text-sm text-gray-400">
+        <a href="{% url 'dar_like' pub.id %}" class="hover:text-white">❤️ {{ pub.total_likes }}</a>
 
-<div class="card"><h4>Mis amigos ({{ amigos|length }})</h4>
-{% for a in amigos %}<div class="amigo-item"><span>🟢 {{ a.username }}</span></div>{% empty %}<p style="color:#666; font-size:13px;">Agrega amigos para compartirles publicaciones</p>{% endfor %}
-</div>
+        <button onclick="document.getElementById('com-{{ pub.id }}').classList.toggle('hidden')" class="hover:text-white">💬 {{ pub.comentarios.count }} Comentar</button>
 
-<div class="card"><h4>📩 Compartidos contigo</h4>
-{% for comp in compartidos %}
-<div style="padding:10px 0; border-bottom:1px solid #222;">
-<p style="font-size:12px; color:#888;"><b style="color:white;">{{ comp.de_usuario.username }}</b> te compartió:</p>
-<p style="font-size:13px; margin:4px 0;">{{ comp.publicacion.contenido }}</p>
-{% if comp.publicacion.imagen %}<img src="{{ comp.publicacion.imagen.url }}" style="width:100%; border-radius:10px; margin-top:5px; max-height:200px; object-fit:cover;">{% endif %}
-</div>
-{% empty %}<p style="color:#666; font-size:13px;">Aquí verás lo que te comparten</p>{% endfor %}
-</div>
-</div>
-</div>
+        <button onclick="document.getElementById('share-{{ pub.id }}').classList.toggle('hidden')" class="hover:text-white">↗ Compartir</button>
+      </div>
 
-<div id="shareModal" class="modal"><div class="modal-content">
-<h4>Enviar a un amigo</h4><p style="color:#777; font-size:12px; margin-bottom:10px;">Elige a quién enviarle esta publicación con foto</p>
-<div id="listaAmigosModal">
-{% for a in amigos %}<div class="amigo-item"><span>{{ a.username }}</span><button class="btn btn-blue btn-enviar" data-amigo="{{ a.id }}" style="padding:4px 12px; font-size:12px;">Enviar</button></div>{% empty %}<p style="color:#666;">No tienes amigos agregados</p>{% endfor %}
-</div>
-<button onclick="document.getElementById('shareModal').style.display='none'" class="btn" style="margin-top:15px; width:100%;">Cerrar</button>
-</div></div>
+      <!-- COMPARTIR A AMIGO -->
+      <div id="share-{{ pub.id }}" class="hidden mt-3 p-3 bg-[#2c2c2e] rounded-xl">
+        <p class="text-xs text-gray-400 mb-2">Compartir a:</p>
+        <div class="flex flex-wrap gap-2">
+          {% for amigo in amigos %}
+            <a href="{% url 'compartir_a_amigo' pub.id amigo.id %}" class="text-xs bg-white text-black px-3 py-1 rounded-full">{{ amigo.username }}</a>
+          {% endfor %}
+        </div>
+      </div>
 
-<script>
-let pubActual = null;
-document.querySelectorAll('.open-share').forEach(b=>{
-  b.addEventListener('click', e=>{
-    e.preventDefault(); pubActual = b.dataset.pub;
-    document.getElementById('shareModal').style.display='flex';
-  });
-});
-document.querySelectorAll('.btn-enviar').forEach(btn=>{
-  btn.addEventListener('click', e=>{
-    let amigoId = btn.dataset.amigo;
-    fetch(`/compartir/${pubActual}/a/${amigoId}/`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
-  .then(r=>r.json()).then(d=>{
-      btn.innerText='✅ Enviado'; btn.disabled=true;
-      setTimeout(()=>{ document.getElementById('shareModal').style.display='none'; btn.innerText='Enviar'; btn.disabled=false; }, 1000);
-    });
-  });
-});
-document.querySelectorAll('.like-btn').forEach(btn=>{
-  btn.addEventListener('click', e=>{
-    e.preventDefault();
-    fetch(`/like/${btn.dataset.id}/`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
-  .then(r=>r.json()).then(d=>{
-      document.getElementById(`likes-${btn.dataset.id}`).innerText=d.likes;
-      if(d.liked) btn.classList.add('liked'); else btn.classList.remove('liked');
-    });
-  });
-});
-</script>
+      <!-- COMENTARIOS -->
+      <div id="com-{{ pub.id }}" class="hidden mt-4">
+        <form method="POST" action="{% url 'comentar' pub.id %}" onsubmit="const b=this.querySelector('button'); b.disabled=true; b.innerText='Enviando...';">
+          {% csrf_token %}
+          <div class="flex gap-2">
+            <input name="contenido_comentario" placeholder="Escribe un comentario..." class="flex-1 bg-[#2c2c2e] rounded-full px-4 py-2 text-sm focus:outline-none">
+            <button type="submit" class="bg-white text-black px-4 py-2 rounded-full text-sm font-bold">Enviar</button>
+          </div>
+        </form>
+        <div class="mt-3 space-y-2">
+          {% for c in pub.comentarios.all %}
+            <div class="bg-[#2c2c2e] rounded-xl px-3 py-2 text-sm">
+              <b>{{ c.usuario.username }}</b>: {{ c.contenido }}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- DERECHA -->
+  <div class="space-y-4">
+    <div class="bg-[#1c1c1e] rounded-[24px] border border-white/10 p-5">
+      <h3 class="font-bold">Descubre gente</h3>
+      <div class="mt-3 space-y-3">
+        {% for u in perfiles %}
+        <div class="flex justify-between items-center">
+          <span class="text-sm">{{ u.username }}</span>
+          <a href="{% url 'enviar_solicitud' u.id %}" class="text-xs bg-white text-black px-3 py-1 rounded-full font-bold">Agregar</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-[#1c1c1e] rounded-[24px] border border-white/10 p-5">
+      <h3 class="font-bold">Mis amigos ({{ amigos|length }})</h3>
+      <p class="text-xs text-gray-400">Agrega amigos para compartirles publicaciones</p>
+      <div class="mt-3">
+        {% for a in solicitudes %}
+          <div class="flex justify-between items-center text-sm mb-2">
+            <span>{{ a.de_usuario.username }} te envió solicitud</span>
+            <a href="{% url 'aceptar_solicitud' a.id %}" class="bg-[#0a84ff] px-3 py-1 rounded-full text-xs">Aceptar</a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-[#1c1c1e] rounded-[24px] border border-white/10 p-5">
+      <h3 class="font-bold">📩 Compartidos contigo</h3>
+      <p class="text-xs text-gray-400 mb-2">Aquí verás lo que te comparten</p>
+      {% for comp in compartidos %}
+        <div class="text-sm mt-2 p-2 bg-[#2c2c2e] rounded-xl">
+          <b>{{ comp.de_usuario.username }}</b> te compartió: {{ comp.publicacion.contenido|truncatechars:50 }}
+        </div>
+      {% empty %}
+        <p class="text-xs text-gray-500">Nada por ahora</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 </body>
 </html>
