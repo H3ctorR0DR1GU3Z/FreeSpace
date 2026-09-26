@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeSpace</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            FreeSpace
+        </div>
+
+        {% if user.is_authenticated %}
+        <nav class="nav-links">
+            <a href="{% url 'feed' %}">Inicio</a>
+            <a href="#">Explorar</a>
+            <a href="#">Personas</a>
+            <a href="#">Mensajes</a>
+        </nav>
+        {% endif %}
+
+        <div class="nav-auth">
+        {% if user.is_authenticated %}
+            <span class="welcome-user">
+                Hola, {{ user.username }}
+            </span>
+            <a href="{% url 'logout' %}" class="login-link">
+                Cerrar sesión
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" class="login-link">
+                Iniciar sesión
+            </a>
+            <a href="{% url 'registro' %}" class="btn btn-primary">
+                Crear cuenta
+            </a>
+        {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>
+                    Un espacio para compartir
+                    <span>lo que piensas.</span>
+                </h1>
+                <p>
+                    Comparte ideas, pensamientos y opiniones.
+                    Conecta con personas y descubre nuevas perspectivas.
+                </p>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 FreeSpace — Comparte. Conecta. Piensa.</p>
+    </footer>
+
+</body>
+</html>
