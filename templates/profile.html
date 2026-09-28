@@ -1,0 +1,9 @@
+<h2>{{ perfil_user.username }} {% if perfil_user.perfil.nickname %}({{ perfil_user.perfil.nickname }}){% endif %}</h2>
+{% if perfil_user.perfil.foto %}<img src="{{ perfil_user.perfil.foto.url }}" width="120" style="border-radius:50%">{% endif %}
+<p>{{ perfil_user.perfil.bio }}</p>
+<p>{% if perfil_user.perfil.privado %}Privado{% else %}Publico{% endif %}</p>
+<h3>Historias</h3>
+{% for h in historias %}<img src="{{ h.imagen.url }}" width="80" style="border-radius:50%"> {{ h.titulo }} {% endfor %}
+<h3>Posts</h3>
+{% for p in publicaciones %}<p>{{ p.contenido }}</p>{% if p.imagen %}<img src="{{ p.imagen.url }}" width="300">{% endif %}{% endfor %}
+<a href="/feed/">Volver</a>
