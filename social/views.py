@@ -115,3 +115,10 @@ def iniciar_sesion(request):
 def cerrar_sesion(request):
     logout(request)
     return redirect("home")
+
+@login_required
+def eliminar_comentario(request, comentario_id):
+    comentario = get_object_or_404(Comentario, id=comentario_id)
+    if comentario.usuario == request.user:
+        comentario.delete()
+    return redirect("feed")
