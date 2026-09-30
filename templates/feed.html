@@ -27,7 +27,7 @@
 
   <div id="comentarios-{{ p.id }}">
     {% for c in p.comentarios.all %}
-      <p><b>{{ c.usuario.username }}:</b> {{ c.contenido }}</p>
+      <p><b>{{ c.usuario.username }}:</b> {{ c.contenido }} {% if c.usuario == user %}<a href="{% url 'eliminar_comentario' c.id %}" style="color:red; margin-left:10px; text-decoration:none;" onclick="return confirm('¿Borrar este comentario?')">🗑️</a>{% endif %}</p>
     {% endfor %}
   </div>
 
