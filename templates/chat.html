@@ -1,0 +1,41 @@
+<h2>Chat con {{otro.username}}</h2>
+<a href="/perfil/{{otro.id}}/">Ver perfil</a> | <a href="/mensajes/">Volver</a>
+<div style="height:400px; overflow-y:scroll; border:1px solid #ccc" id="box">
+{% for m in mensajes %}
+<div>
+<b>{{m.de_usuario.username}}:</b> {{m.contenido}} {% if m.editado %}(editado){% endif %}
+{% if m.imagen %}<br><img src="{{m.imagen.url}}" width="200">{% endif %}
+{% if m.audio %}<br><audio controls src="{{m.audio.url}}"></audio>{% endif %}
+{% if m.de_usuario == request.user %}
+ - <a href="/borrar_mensaje/{{m.id}}/">Borrar</a>
+ <form action="/editar_mensaje/{{m.id}}/" method="post" style="display:inline">{% csrf_token %}<input name="contenido" value="{{m.contenido}}"><button>Editar</button></form>
+{% endif %}
+</div>
+{% endfor %}
+</div>
+
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<input name="contenido" placeholder="Mensaje...">
+<input type="file" name="imagen" accept="image/*">
+<input type="file" name="audio" id="audioFile" style="display:none">
+<button type="button" onclick="grabar()">🎤 Grabar voz (5s)</button>
+<button type="submit">Enviar</button>
+</form>
+
+<script>
+let rec, chunks=[];
+async function grabar(){
+ let s=await navigator.mediaDevices.getUserMedia({audio:true});
+ rec=new MediaRecorder(s); chunks=[];
+ rec.ondataavailable=e=>chunks.push(e.data);
+ rec.onstop=()=>{
+  let blob=new Blob(chunks,{type:'audio/webm'});
+  let file=new File([blob],"voz.webm");
+  let dt=new DataTransfer(); dt.items.add(file);
+  document.getElementById('audioFile').files=dt.files;
+  alert('Voz lista, dale Enviar');
+ };
+ rec.start(); setTimeout(()=>rec.stop(),5000); alert('Grabando 5s...');
+}
+</script>

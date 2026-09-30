@@ -1,47 +1,35 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feed - FreeSpace</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-*{font-family:'Inter',sans-serif; margin:0; box-sizing:border-box;}
-body{background:#0a0a0a; color:white;}
-nav{position:sticky; top:0; z-index:10; backdrop-filter: blur(12px); background:rgba(18,18,18,0.8); border-bottom:1px solid #222; padding:14px 30px; display:flex; justify-content:space-between; align-items:center;}
-.logo{font-weight:800; font-size:20px;}
-nav a{color:#aaa; text-decoration:none; margin-left:22px;} nav a:hover{color:white;}
-.container{max-width:1150px; margin:25px auto; display:flex; gap:25px; padding:0 20px;}
-.feed{flex:1.7;}.sidebar{flex:1; position:sticky; top:85px; height:fit-content;}
-.card{background:#171717; border:1px solid #262626; border-radius:18px; padding:18px; margin-bottom:16px;}
-textarea{background:#212121; border:1px solid #2a2a2a; width:100%; color:white; padding:14px; border-radius:12px; outline:none;}
-.user-pill{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
-.avatar{width:38px; height:38px; background:linear-gradient(135deg,#0d6efd,#6f42c1); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;}
-.btn{background:#fff; color:black; border:none; padding:9px 22px; border-radius:30px; font-weight:600; cursor:pointer;}
-.btn-blue{background:#0d6efd; color:white;}
-.file-label{color:#888; font-size:13px; cursor:pointer;}
-.post-actions{display:flex; gap:18px; margin-top:12px; color:#666; font-size:14px;}
-.post-actions a{color:#666; text-decoration:none; cursor:pointer;}.post-actions a:hover{color:white;}
-.coment-box{margin-top:12px; margin-left:48px; display:none;}
-.coment-box input{background:#212121; border:1px solid #2a2a2a; color:white; padding:8px 12px; border-radius:20px; width:75%; outline:none;}
-.liked{color:#ff3040!important;}
-.modal{position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:20;}
-.modal-content{background:#171717; border:1px solid #333; border-radius:18px; padding:20px; width:90%; max-width:380px;}
-.amigo-item{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #222;}
-</style>
-</head>
+<html>
+<head><title>Feed</title></head>
 <body>
-<nav><div class="logo">FreeSpace</div><div><a href="/">Inicio</a><a href="/feed/" style="color:white;">Feed</a><a href="/logout/">Salir</a></div></nav>
+<h2>Crear publicacion</h2>
+<form method="post" enctype="multipart/form-data">
+{% csrf_token %}
+<input name="contenido" placeholder="Que piensas?">
+<input type="file" name="imagen" accept="image/*">
+<button>Publicar</button>
+</form>
+<hr>
 
-<div class="container">
-<div class="feed">
-<div class="card">
-<div class="user-pill"><div class="avatar">{{ user.username|first|upper }}</div><div><strong>{{ user.username }}</strong></div></div>
-<form method="POST" enctype="multipart/form-data">{% csrf_token %}
-<textarea name="contenido" rows="3" placeholder="¿Qué estás pensando? Puedes subir foto también..."></textarea>
-<div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-<label class="file-label">📎 <input type="file" name="imagen" hidden accept="image/*" onchange="this.parentNode.innerHTML='✅ '+this.files[0].name"> Añadir foto</label>
-<button class="btn btn-blue">Publicar</button></div></form>
-</div>
+{% for p in publicaciones %}
+<div style="border:1px solid #ccc; margin:10px; padding:10px;">
+  <a href="/perfil/{{ p.usuario.id }}/"><b>{{ p.usuario.username }}</b></a>
+  <p>{{ p.contenido }}</p>
+  {% if p.imagen %}
+    <img src="{{ p.imagen.url }}" style="max-width:400px;"><br>
+  {% endif %}
+
+  <button class="like-btn" data-id="{{ p.id }}">Like</button>
+  <span id="like-count-{{ p.id }}">{{ p.likes.count }} likes</span>
+  <button class="save-btn" data-id="{{ p.id }}">Guardar</button>
+  <a href="/perfil/{{ p.usuario.id }}/">Ver perfil</a>
+
+  <div id="comentarios-{{ p.id }}">
+    {% for c in p.comentarios.all %}
+      <p><b>{{ c.usuario.username }}:</b> {{ c.contenido }}</p>
+    {% endfor %}
+  </div>
 
 {% for pub in publicaciones %}
 <div class="card">
@@ -59,49 +47,41 @@ textarea{background:#212121; border:1px solid #2a2a2a; width:100%; color:white; 
 </div>
 </div>
 {% endfor %}
-</div>
 
-<div class="sidebar">
-{% if solicitudes %}
-<div class="card"><h4>Solicitudes</h4>
-{% for s in solicitudes %}<div class="amigo-item"><span>{{ s.de_usuario.username }}</span><a href="{% url 'aceptar_solicitud' s.id %}" class="btn btn-blue" style="padding:4px 12px; font-size:12px;">Aceptar</a></div>{% endfor %}
-</div>{% endif %}
+<h3>Solicitudes</h3>
+{% for s in solicitudes %}
+  <p>{{ s.de_usuario.username }} <a href="/aceptar/{{ s.id }}/">Aceptar</a> | <a href="/rechazar/{{ s.id }}/">Rechazar</a></p>
+{% endfor %}
 
-<div class="card"><h4>Descubre gente</h4>
-{% for u in perfiles %}<div class="amigo-item"><span>{{ u.username }}</span><a href="{% url 'enviar_solicitud' u.id %}" style="color:#0d6efd; font-size:13px; text-decoration:none;">Agregar</a></div>{% endfor %}
-</div>
-
-<div class="card"><h4>Mis amigos ({{ amigos|length }})</h4>
-{% for a in amigos %}<div class="amigo-item"><span>🟢 {{ a.username }}</span></div>{% empty %}<p style="color:#666; font-size:13px;">Agrega amigos para compartirles publicaciones</p>{% endfor %}
-</div>
-
-<div class="card"><h4>📩 Compartidos contigo</h4>
-{% for comp in compartidos %}
-<div style="padding:10px 0; border-bottom:1px solid #222;">
-<p style="font-size:12px; color:#888;"><b style="color:white;">{{ comp.de_usuario.username }}</b> te compartió:</p>
-<p style="font-size:13px; margin:4px 0;">{{ comp.publicacion.contenido }}</p>
-{% if comp.publicacion.imagen %}<img src="{{ comp.publicacion.imagen.url }}" style="width:100%; border-radius:10px; margin-top:5px; max-height:200px; object-fit:cover;">{% endif %}
-</div>
-{% empty %}<p style="color:#666; font-size:13px;">Aquí verás lo que te comparten</p>{% endfor %}
-</div>
-</div>
-</div>
-
-<!-- MODAL COMPARTIR -->
-<div id="shareModal" class="modal"><div class="modal-content">
-<h4>Enviar a un amigo</h4><p style="color:#777; font-size:12px; margin-bottom:10px;">Elige a quién enviarle esta publicación con foto</p>
-<div id="listaAmigosModal">
-{% for a in amigos %}<div class="amigo-item"><span>{{ a.username }}</span><button class="btn btn-blue btn-enviar" data-amigo="{{ a.id }}" style="padding:4px 12px; font-size:12px;">Enviar</button></div>{% empty %}<p style="color:#666;">No tienes amigos agregados</p>{% endfor %}
-</div>
-<button onclick="document.getElementById('shareModal').style.display='none'" class="btn" style="margin-top:15px; width:100%;">Cerrar</button>
-</div></div>
+<h3>Amigos</h3>
+{% for a in amigos %}
+  <p>{{ a.username }} - <a href="/mensajes/{{ a.id }}/">Chat</a> - <a href="/eliminar_amigo/{{ a.id }}/" style="color:red;">Eliminar</a></p>
+{% endfor %}
 
 <script>
-let pubActual = null;
-document.querySelectorAll('.open-share').forEach(b=>{
-  b.addEventListener('click', e=>{
-    e.preventDefault(); pubActual = b.dataset.pub;
-    document.getElementById('shareModal').style.display='flex';
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie!== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.querySelectorAll('.like-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    let id = this.dataset.id;
+    fetch(`/like/${id}/`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
+   .then(r=>r.json()).then(d=>{
+      document.getElementById(`like-count-${id}`).innerText = d.likes + ' likes';
+      this.style.color = d.liked? 'red' : 'black';
+    });
   });
 });
 document.querySelectorAll('.btn-enviar').forEach(btn=>{
@@ -114,8 +94,9 @@ document.querySelectorAll('.btn-enviar').forEach(btn=>{
     });
   });
 });
-document.querySelectorAll('.like-btn').forEach(btn=>{
-  btn.addEventListener('click', e=>{
+
+document.querySelectorAll('.coment-form').forEach(form => {
+  form.addEventListener('submit', function(e){
     e.preventDefault();
     fetch(`/like/${btn.dataset.id}/`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
   .then(r=>r.json()).then(d=>{

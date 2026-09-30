@@ -1,0 +1,9 @@
+<h2>Config</h2>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+Nickname: <input name="nickname" value="{{ perfil.nickname }}"><br>
+Bio: <textarea name="bio">{{ perfil.bio }}</textarea><br>
+Foto: <input type="file" name="foto"><br>
+Privado: <input type="checkbox" name="privado" {% if perfil.privado %}checked{% endif %}><br>
+Historia: <input name="historia_titulo"> <input type="file" name="historia_img"><br>
+<button>Guardar</button>
+</form>

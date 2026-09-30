@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:Arial;background:#000;color:#fff;margin:0}
+.header{padding:15px;border-bottom:1px solid #333;display:flex;justify-content:space-between}
+.header h2{margin:0}
+.container{max-width:600px;margin:auto}
+.search{padding:10px}
+.search input{width:100%;padding:10px;border-radius:10px;border:none;background:#222;color:#fff}
+.chat-item{display:flex;align-items:center;padding:12px 15px;border-bottom:1px solid #111;text-decoration:none;color:#fff}
+.chat-item:hover{background:#111}
+.chat-item img{width:55px;height:55px;border-radius:50%;object-fit:cover;margin-right:12px}
+.info{flex:1}
+.info b{font-size:15px}
+.info p{margin:3px 0 0 0;color:#888;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.badge{background:#0095f6;color:#fff;border-radius:50%;padding:2px 7px;font-size:12px;margin-left:10px}
+.time{color:#555;font-size:11px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h2>{{ request.user.username }}</h2>
+    <a href="/feed/" style="color:#fff;text-decoration:none">Volver</a>
+  </div>
+
+  <div class="search">
+    <input type="text" placeholder="Buscar" id="buscarChat" onkeyup="filtrar()">
+  </div>
+
+  {% for c in conversaciones %}
+  <a class="chat-item" href="/mensajes/{{ c.amigo.id }}/">
+    {% if c.amigo.perfil.foto %}
+      <img src="{{ c.amigo.perfil.foto.url }}">
+    {% else %}
+      <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+    {% endif %}
+    <div class="info">
+      <b>{{ c.amigo.username }} {% if c.amigo.perfil.nickname %}<span style="color:#888;font-weight:normal">{{ c.amigo.perfil.nickname }}</span>{% endif %}</b>
+      <p>
+        {% if c.ultimo %}
+          {% if c.ultimo.de_usuario == request.user %}Tú: {% endif %}
+          {% if c.ultimo.imagen %}📷 Imagen{% elif c.ultimo.audio %}🎤 Audio{% else %}{{ c.ultimo.contenido|truncatechars:30 }}{% endif %}
+          {% if c.ultimo.editado %} (editado){% endif %}
+        {% else %}
+          Nuevo chat
+        {% endif %}
+      </p>
+    </div>
+    {% if c.noread %}
+      <span class="badge">{{ c.noread }}</span>
+    {% endif %}
+  </a>
+  {% empty %}
+    <p style="text-align:center;margin-top:50px;color:#888">No tienes conversaciones.<br>Agrega amigos en el feed para empezar a chatear.</p>
+  {% endfor %}
+</div>
+
+<script>
+function filtrar(){
+  let q = document.getElementById('buscarChat').value.toLowerCase();
+  document.querySelectorAll('.chat-item').forEach(el => {
+    el.style.display = el.innerText.toLowerCase().includes(q) ? 'flex' : 'none';
+  });
+}
+</script>
+</body>
+</html>
